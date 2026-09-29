@@ -1,42 +1,29 @@
-# iops-studio
+# AGV Gazebo Simulation
 
-## Prerequisites
+A 3D physics-based digital twin of an AGV (Automated Guided Vehicle) fleet, built on Gazebo Sim + ROS 2, driven by real telemetry from a discrete-event Python simulator.
 
-- A GitHub account with access to this repository
-- [Visual Studio Code](https://code.visualstudio.com/) with the **GitHub Codespaces** extension installed
+## Status
 
-## Getting started
+| Phase | Description | Status |
+|---|---|---|
+| 0 | Environment setup (ROS 2 Jazzy, Gazebo Harmonic) | ✅ Done |
+| 1 | World generator, floor layout, coordinate system | ✅ Done |
+| 2 | Pose-puppeting spike + live browser viewer | ✅ Done |
+| 3 | Velocity-control bridge (real physics-driven movement) | ✅ Done |
+| 4 | State visualization (beacons, charge lamps, crates, blocked-corridor markers) | ✅ Done |
+| 6 | Real wheel physics (differential drive) | 🔧 In progress |
+| 5, 7 | Browser 3D view + live physics feed | ⏳ Planned |
+| 8 | Demo hardening | ⏳ Planned |
 
-1. In this repository, select **Code** (green button) → **Codespaces** tab.
-2. Click **+** to create a new Codespace and note the name once it starts.
-3. On your local machine, open **VS Code** → **Remote Explorer** → sign in to GitHub if prompted.
-4. Find the Codespace you just created and select **Connect**.
-5. A terminal will open with the install script downloading and installing `iops-studio` from Artifactory. **Do not close this terminal.** To monitor setup progress in a second terminal:
+## What this does
 
-    ```bash
-    tail -f /var/log/iops-studio/setup.log
-    ```
+- Simulator (Python, discrete-event) owns routing, traffic management, and battery/task logic
+- Publishes live telemetry (position, heading, state) over Redis at 10Hz per AGV
+- A ROS 2 bridge node translates that into velocity commands, driving each AGV's physical body in Gazebo with real rigid-body physics
+- Visual state indicators (color-coded markers, lamps, cargo crates) reflect the fleet's real-time status directly in the 3D scene
 
-6. In VS Code, open the **Ports** view and wait for **port 40128** to show a green status.
-7. Once port 40128 is green, access the application at [http://localhost:40128](http://localhost:40128).
+## Key technical notes
 
-On subsequent starts or reconnects, services restart automatically.
-
-## Troubleshooting
-
-If the install script fails, verify your Codespace secrets are set correctly:
-
-```bash
-echo $ARTIFACTORY_USER   # should not be empty
-```
-
-To restart services after a Codespace reconnect if they didn't come up:
-
-```bash
-iops-studio --start
-iops-studio --verify
-```
-
-## Local docs runtime
-
-Start the documentation server with `docker compose up -d`. The Docker Compose definition lives in `compose.yaml` at the repository root.
+- Coordinate conversion between the 2D floor layout and Gazebo's world frame is handled in `scripts/gen_gazebo_world.py`
+- All state-driven visual updates use a dirty-check pattern (fire only on actual state transitions, not every tick) to avoid overloading the simulation
+- `start_all.sh` orchestrates the full stack (Redis, Gazebo, bridge, simulator) with automatic cleanup of stale processes on every run
