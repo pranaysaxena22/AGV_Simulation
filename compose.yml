@@ -1,0 +1,28 @@
+version: '3.8'
+
+# Vendor Documentation Portal
+# ===========================
+# Serves pre-generated documentation with nginx
+#
+# Usage:
+#   docker compose up -d
+
+services:
+  docs:
+    image: deloitte.jfrog.io/smaf-docker-staging-local/iops/vendor-docs-manager:0.0.21
+    ports:
+    - "${PORT:-1980}:80"
+    environment:
+    - BASE_URL=${BASE_URL:-http://localhost:1980}
+    volumes:
+    - ./knowledge-base:/usr/share/nginx/html/knowledge-base:ro
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://localhost/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: vendor-docs-network
