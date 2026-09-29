@@ -92,10 +92,4 @@ yaw = radians(heading_degrees), wrapped to (-π, π]
 
 ---
 
-## Known limitations (by design, not bugs)
-
-- **No lane/corridor constraint in Gazebo** — AGVs drive in a straight line toward their target coordinate; the drawn floor lines are visual reference only, not a physical constraint.
-- **No AGV-AGV collision avoidance** — two AGVs can visually overlap or momentarily block one another at a shared node. This is an accepted Mode V (velocity-control) limitation, not a defect.
-- **In-Gazebo native text rendering is not supported** in this installed Gazebo version — confirmed via multiple approaches (SDF `<text>` geometry, `gz.msgs.Marker` TEXT type, GUI Topic Viewer). Status is instead conveyed via color-coded shapes (beacons/lamps) and the browser live viewer.
-
 ---
